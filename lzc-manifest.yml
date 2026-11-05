@@ -1,0 +1,47 @@
+application:
+  subdomain: pigallery2
+  multi_instance: false
+  # PiGallery2 has its own login and user accounts, so it authenticates itself.
+  public_path:
+    - /
+  upstreams:
+    - location: /
+      backend: http://pigallery2:80/
+services:
+  # Seeds config.json before the app starts, so the weak default
+  # admin/admin account is never created (see content/init-config.sh).
+  config-init:
+    image: docker.1ms.run/library/busybox:1.36
+    command:
+      - sh
+      - /lzcapp/pkg/content/init-config.sh
+    environment:
+      - PG2_ADMIN_USER={{ .U.admin_username }}
+      - PG2_ADMIN_PASSWORD={{ .U.admin_password }}
+    binds:
+      - /lzcapp/var/config:/app/data/config
+  pigallery2:
+    # upstream: bpatrik/pigallery2:3.5.2
+    image: docker.1ms.run/bpatrik/pigallery2:3.5.2
+    depends_on:
+      - config-init
+    environment:
+      - NODE_ENV=production
+    binds:
+      - /lzcapp/var/config:/app/data/config
+      - /lzcapp/var/db:/app/data/db
+      - /lzcapp/var/images:/app/data/images
+      - /lzcapp/var/tmp:/app/data/tmp
+usage: |
+  PiGallery2 是目录式相册：把照片文件夹放进 images 目录后自动索引，
+  支持时间线、地图、标签、人脸识别，界面响应式，适合浏览大量照片。
+
+  登录账号：安装时填写的管理员用户名与密码（默认用户名 admin）。
+  **本包已预置该管理员，因此不会生成 PiGallery2 那个著名的默认 admin/admin 弱口令账号。**
+
+  说明：
+    - 应用自带账号体系，直接对外开放由 PiGallery2 自己的登录页鉴权，所以使用 public_path。
+    - 照片放在 images 目录（通过文件管理器访问），会作为相册的根目录。
+    - config / db / tmp 目录随应用持久化；首次索引大量照片会占用较多内存与时间。
+    - 官方建议至少 1GB 内存，内存较小时垃圾回收会更频繁、索引变慢。
+    - 未做实机验证。

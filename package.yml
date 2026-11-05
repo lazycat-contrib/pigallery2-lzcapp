@@ -1,0 +1,17 @@
+package: community.lazycat.app.pigallery2
+name: PiGallery2
+description: "Fast directory-first photo gallery with a responsive UI, maps, tags and face detection."
+version: 3.5.2
+min_os_version: "1.5.0"
+homepage: https://github.com/bpatrik/pigallery2
+author: bpatrik
+license: MIT
+permissions:
+  required: []
+locales:
+  zh:
+    name: PiGallery2
+    description: "快速的目录式相册：响应式界面，支持地图、标签与人脸识别。"
+  en:
+    name: PiGallery2
+    description: "Fast directory-first photo gallery with a responsive UI, maps, tags and face detection."
